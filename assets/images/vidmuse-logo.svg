@@ -1,0 +1,112 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient for main logo -->
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9333ea;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#c026d3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Gradient for sparkle accent -->
+    <linearGradient id="sparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+      <feOffset dx="0" dy="4" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge> 
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/> 
+      </feMerge>
+    </filter>
+    
+    <!-- Glow effect -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle for app icon version -->
+  <circle cx="200" cy="200" r="180" fill="url(#logoGradient)" opacity="0.1"/>
+  
+  <!-- Main logo group -->
+  <g filter="url(#shadow)">
+    
+    <!-- Film strip frame - left -->
+    <rect x="120" y="140" width="12" height="120" rx="3" fill="url(#logoGradient)"/>
+    <rect x="120" y="145" width="12" height="10" fill="#0f0b1f" opacity="0.3"/>
+    <rect x="120" y="165" width="12" height="10" fill="#0f0b1f" opacity="0.3"/>
+    <rect x="120" y="185" width="12" height="10" fill="#0f0b1f" opacity="0.3"/>
+    <rect x="120" y="205" width="12" height="10" fill="#0f0b1f" opacity="0.3"/>
+    <rect x="120" y="225" width="12" height="10" fill="#0f0b1f" opacity="0.3"/>
+    <rect x="120" y="245" width="12" height="10" fill="#0f0b1f" opacity="0.3"/>
+    
+    <!-- Film strip frame - right -->
+    <rect x="268" y="140" width="12" height="120" rx="3" fill="url(#logoGradient)"/>
+    <rect x="268" y="145" width="12" height="10" fill="#0f0b1f" opacity="0.3"/>
+    <rect x="268" y="165" width="12" height="10" fill="#0f0b1f" opacity="0.3"/>
+    <rect x="268" y="185" width="12" height="10" fill="#0f0b1f" opacity="0.3"/>
+    <rect x="268" y="205" width="12" height="10" fill="#0f0b1f" opacity="0.3"/>
+    <rect x="268" y="225" width="12" height="10" fill="#0f0b1f" opacity="0.3"/>
+    <rect x="268" y="245" width="12" height="10" fill="#0f0b1f" opacity="0.3"/>
+    
+    <!-- Center play button frame -->
+    <rect x="132" y="140" width="136" height="120" rx="8" fill="url(#logoGradient)"/>
+    
+    <!-- Inner screen area -->
+    <rect x="140" y="148" width="120" height="104" rx="6" fill="#1a0f2e"/>
+    
+    <!-- Play button triangle -->
+    <path d="M 185 175 L 185 225 L 225 200 Z" fill="url(#logoGradient)" filter="url(#glow)"/>
+    
+    <!-- Magic sparkles -->
+    <g filter="url(#glow)">
+      <!-- Top right sparkle -->
+      <path d="M 270 130 L 272 135 L 277 137 L 272 139 L 270 144 L 268 139 L 263 137 L 268 135 Z" 
+            fill="url(#sparkleGradient)"/>
+      
+      <!-- Top left sparkle -->
+      <path d="M 135 125 L 136.5 128.5 L 140 130 L 136.5 131.5 L 135 135 L 133.5 131.5 L 130 130 L 133.5 128.5 Z" 
+            fill="url(#sparkleGradient)" opacity="0.8"/>
+      
+      <!-- Bottom right sparkle -->
+      <path d="M 275 265 L 276.5 268.5 L 280 270 L 276.5 271.5 L 275 275 L 273.5 271.5 L 270 270 L 273.5 268.5 Z" 
+            fill="url(#sparkleGradient)" opacity="0.9"/>
+      
+      <!-- Small sparkle -->
+      <circle cx="125" cy="270" r="2" fill="url(#sparkleGradient)" opacity="0.7"/>
+      <circle cx="282" cy="155" r="1.5" fill="url(#sparkleGradient)" opacity="0.6"/>
+    </g>
+    
+    <!-- Accent lines for motion effect -->
+    <path d="M 100 180 L 115 180" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+    <path d="M 105 195 L 115 195" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+    <path d="M 95 210 L 115 210" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+    
+    <path d="M 285 185 L 300 185" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+    <path d="M 285 200 L 295 200" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+    <path d="M 285 215 L 305 215" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+  </g>
+  
+  <!-- Brand name -->
+  <text x="200" y="310" font-family="'Inter', 'SF Pro Display', -apple-system, system-ui, sans-serif" 
+        font-size="42" font-weight="800" text-anchor="middle" fill="url(#logoGradient)" letter-spacing="1">
+    VidMuse
+  </text>
+  
+  <!-- Tagline -->
+  <text x="200" y="335" font-family="'Inter', 'SF Pro Display', -apple-system, system-ui, sans-serif" 
+        font-size="14" font-weight="400" text-anchor="middle" fill="#9ca3af" letter-spacing="2">
+    STORIES TO CINEMA
+  </text>
+</svg>

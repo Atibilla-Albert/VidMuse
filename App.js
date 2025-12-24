@@ -1,81 +1,96 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, StatusBar as RNStatusBar, View, AppRegistry } from 'react-native';
+import { StyleSheet, StatusBar as RNStatusBar, Image, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { Image as ExpoImage } from 'expo-image';
 
+/* ---------------- SCREENS ---------------- */
 import CreateScreen from './src/screens/CreateScreen';
 import ScenesScreen from './src/screens/ScenesScreen';
 import ExportScreen from './src/screens/ExportScreen';
 import LibraryScreen from './src/screens/LibraryScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import SignUpScreen from './src/screens/SignUpScreen';
+import SignInScreen from './src/screens/SignIn';
+import SettingsScreen from './src/screens/Settings';
+import PreferencesScreen from './src/screens/preferenceScreen';
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
-function App() {
+const TAB_ICONS = {
+  Create: { focused: 'add-circle', unfocused: 'add-circle-outline' },
+  Scenes: { focused: 'layers', unfocused: 'layers-outline' },
+  Export: { focused: 'share-social', unfocused: 'share-social-outline' },
+  Library: { focused: 'library', unfocused: 'library-outline' },
+  Profile: { focused: 'person', unfocused: 'person-outline' },
+};
+
+function TabNavigator() {
   return (
-    <SafeAreaView style={styles.container}>
-      <RNStatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
-      <NavigationContainer>
-        <Tab.Navigator
-          screenOptions={({ route }) => {
-            const iconMap = {
-              Create: { focused: 'add-circle', unfocused: 'add-circle-outline' },
-              Scenes: { focused: 'layers', unfocused: 'layers-outline' },
-              Export: { focused: 'share', unfocused: 'share-outline' },
-              Library: { focused: 'library', unfocused: 'library-outline' },
-              Profile: { focused: 'person', unfocused: 'person-outline' },
-            };
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: '#6d5dfc',
+        tabBarInactiveTintColor: '#888',
+        headerTitleAlign: 'center',
+        headerStyle: styles.header,
+        headerTitle: () => (
+          <Image
+            source={require('./assets/images/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        ),
+        tabBarIcon: ({ focused, color, size }) => {
+          const icon = TAB_ICONS[route.name];
+          if (!icon) return null;
+          return <Ionicons name={focused ? icon.focused : icon.unfocused} size={size} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Create" component={CreateScreen} />
+      <Tab.Screen name="Scenes" component={ScenesScreen} />
+      <Tab.Screen name="Export" component={ExportScreen} />
+      <Tab.Screen name="Library" component={LibraryScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
+  );
+}
 
-            return {
-              tabBarIcon: ({ focused, color, size }) => {
-                const icons = iconMap[route.name];
-                const iconName = icons ? (focused ? icons.focused : icons.unfocused) : 'help-outline';
-                return <Ionicons name={iconName} size={size} color={color} />;
-              },
-              tabBarActiveTintColor: '#6d5dfc',
-              tabBarInactiveTintColor: '#888',
-              tabBarStyle: {
-                backgroundColor: '#1a1a2e',
-                borderTopColor: '#2a2a3e',
-                paddingBottom: 5,
-                paddingTop: 5,
-                height: 60,
-              },
-              tabBarLabelStyle: {
-                fontSize: 12,
-                marginBottom: 5,
-              },
-              headerShown: true,
-              headerStyle: {
-                backgroundColor: '#1a1a2e',
-                borderBottomWidth: 1,
-                borderBottomColor: '#2a2a3e',
-                elevation: 0,
-                shadowOpacity: 0,
-              },
-              headerTitle: () => (
-                <View style={styles.headerContainer}>
-                  <ExpoImage
-                    source={require('./assets/images/vidmuse-logo.svg')}
-                    style={styles.headerLogo}
-                    contentFit="contain"
-                  />
-                </View>
-              ),
-              headerTitleAlign: 'center',
-            };
+export default function App() {
+  return (
+    <View style={styles.container}>
+      {/* Set translucent to false to prevent layout overlap issues */}
+      <RNStatusBar barStyle="light-content" backgroundColor="#0f0f1a" translucent={false} />
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: styles.header,
+            headerTintColor: '#fff',
+            headerTitleAlign: 'center',
           }}
         >
-          <Tab.Screen name="Create" component={CreateScreen} />
-          <Tab.Screen name="Scenes" component={ScenesScreen} />
-          <Tab.Screen name="Export" component={ExportScreen} />
-          <Tab.Screen name="Library" component={LibraryScreen} />
-          <Tab.Screen name="Profile" component={ProfileScreen} />
-        </Tab.Navigator>
+          <Stack.Screen
+            name="MainTabs"
+            component={TabNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="Login" component={SignInScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen name="Preferences" component={PreferencesScreen} />
+          {/* Note: Ensure these routes are handled within your SettingsScreen logic */}
+          <Stack.Screen name="EditProfile" component={SettingsScreen} />
+          <Stack.Screen name="ChangePassword" component={SettingsScreen} />
+          <Stack.Screen name="Subscription" component={SettingsScreen} />
+          <Stack.Screen name="PrivacySecurity" component={SettingsScreen} />
+          <Stack.Screen name="HelpSupport" component={SettingsScreen} />
+          <Stack.Screen name="About" component={SettingsScreen} />
+        </Stack.Navigator>
       </NavigationContainer>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -84,19 +99,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0f0f1a',
   },
-  headerContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 40,
+  tabBar: {
+    backgroundColor: '#1a1a2e',
+    borderTopColor: '#2a2a3e',
+    height: 70,
+    paddingBottom: 10,
+    paddingTop: 8,
   },
-  headerLogo: {
+  header: {
+    backgroundColor: '#1a1a2e',
+    borderBottomColor: '#2a2a3e',
+    borderBottomWidth: 1,
+  },
+  logo: {
     width: 120,
-    height: 40,
+    height: 30,
   },
 });
-
-// Register the app with AppRegistry
-AppRegistry.registerComponent('main', () => App);
-
-export default App;
-

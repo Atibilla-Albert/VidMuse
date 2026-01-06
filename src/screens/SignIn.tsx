@@ -1,0 +1,201 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+
+const SignInScreen = () => {
+  const navigation = useNavigation();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [secure, setSecure] = useState(true);
+
+  const handleSignIn = () => {
+    // Implement sign in logic here
+    console.log('Attempting sign in with:', email, password);
+    // On success: navigation.navigate('Create' as never);
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView contentContainerStyle={styles.inner}>
+        
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <Ionicons name="film-outline" size={48} color="#6d5dfc" />
+          <Text style={styles.logoText}>VidMuse</Text>
+        </View>
+
+        <Text style={styles.title}>Sign in to your account</Text>
+        <Text style={styles.subtitle}>
+          Welcome back! Start generating AI-powered videos.
+        </Text>
+
+        {/* Email Input */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            placeholder="Enter your email"
+            placeholderTextColor="#7a7a8c"
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
+
+        {/* Password Input */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Password</Text>
+          <View style={styles.passwordWrapper}>
+            <TextInput
+              placeholder="Enter password"
+              placeholderTextColor="#7a7a8c"
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={secure}
+            />
+            <TouchableOpacity onPress={() => setSecure(!secure)} style={styles.eyeIcon}>
+              <Ionicons
+                name={secure ? "eye-off-outline" : "eye-outline"}
+                size={22}
+                color="#7a7a8c"
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+        
+        {/* Forgot Password Link */}
+        <TouchableOpacity style={styles.forgotPasswordLink}>
+            <Text style={styles.loginLink}>Forgot Password?</Text>
+        </TouchableOpacity>
+
+
+        {/* Button */}
+        <TouchableOpacity style={styles.button} onPress={handleSignIn}>
+          <Text style={styles.buttonText}>Sign In</Text>
+        </TouchableOpacity>
+
+        {/* Navigation Link to Sign Up */}
+        <TouchableOpacity onPress={() => navigation.navigate("SignUp" as never)}>
+          <Text style={styles.loginText}>
+            Don't have an account? <Text style={styles.loginLink}>Sign Up</Text>
+          </Text>
+        </TouchableOpacity>
+
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+};
+
+// Reusing styles from SignUpScreen.tsx for consistency
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5', 
+  },
+  inner: {
+    padding: 30,
+    justifyContent: 'center',
+    paddingTop: 100, 
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  logoText: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#6d5dfc',
+    marginTop: 5,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#7a7a8c',
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 5,
+    fontWeight: '600',
+  },
+  input: {
+    height: 50,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    color: '#333',
+    borderColor: '#ddd',
+    borderWidth: 1,
+  },
+  passwordWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderColor: '#ddd',
+    borderWidth: 1,
+  },
+  eyeIcon: {
+    padding: 10,
+    position: 'absolute',
+    right: 0,
+    height: '100%',
+    justifyContent: 'center'
+  },
+  button: {
+    backgroundColor: '#6d5dfc',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  loginText: {
+    textAlign: 'center',
+    fontSize: 14,
+    color: '#333',
+  },
+  loginLink: {
+    color: '#6d5dfc',
+    fontWeight: 'bold',
+  },
+  forgotPasswordLink: {
+      alignSelf: 'flex-end',
+      marginBottom: 30,
+  }
+});
+
+export default SignInScreen;

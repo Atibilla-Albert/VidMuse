@@ -12,11 +12,12 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 
 import CustomStatusBar from '../components/StatusBar';
 import Header from '../components/Header';
+import api from '../services/api';
 
 type RootTabParamList = {
   Create: undefined;
   Scenes: undefined;
-  Export: { scenes?: any[] };
+  Export: { projectId: string };
   Library: undefined;
   Profile: undefined;
 };
@@ -24,18 +25,34 @@ type RootTabParamList = {
 type Props = BottomTabScreenProps<RootTabParamList, 'Export'>;
 
 export default function ExportScreen({ route }: Props) {
+  const { projectId } = route.params || {};
   const [exporting, setExporting] = useState(false);
 
-  const handleExport = () => {
-    setExporting(true);
+  const handleExport = async () => {
+    if (!projectId) {
+      Alert.alert('Error', 'Project ID is missing');
+      return;
+    }
 
-    setTimeout(() => {
-      setExporting(false);
+    setExporting(true);
+    try {
+      const response = await api.video.export(projectId);
+      if (response.success) {
+        Alert.alert(
+          'Export Started',
+          'Video rendering has started. This may take a few minutes. You can check the status in your library.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (err: any) {
+      console.error('Export error:', err);
       Alert.alert(
-        'Export Complete',
-        'Your AI-generated video is ready to download.',
+        'Export Failed',
+        err.message || 'Failed to start video export. Please try again.'
       );
-    }, 2500);
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (

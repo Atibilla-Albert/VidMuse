@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,17 +6,78 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 import CustomStatusBar from '../components/StatusBar';
 import Header from '../components/Header';
+import api from '../services/api';
 
 export default function ProfileScreen() {
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState({
+    name: 'VidMuse Creator',
+    email: 'creator@vidmuse.ai',
+  });
+  const [stats, setStats] = useState({
+    videos: 0,
+    scenes: 0,
+    views: 0,
+  });
+
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
+
+  const loadUserProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await api.user.getProfile();
+      if (response.success && response.data) {
+        setUserData({
+          name: response.data.user.name || 'VidMuse Creator',
+          email: response.data.user.email || 'creator@vidmuse.ai',
+        });
+        setStats({
+          videos: response.data.stats?.videos || 0,
+          scenes: response.data.stats?.scenes || 0,
+          views: response.data.stats?.views || 0,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error loading profile:', error);
+      // Keep default values on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await api.auth.signOut();
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Login' as never }],
+            });
+          } catch (error) {
+            console.error('Logout error:', error);
+            // Navigate anyway
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Login' as never }],
+            });
+          }
+        },
+      },
     ]);
   };
 
@@ -27,7 +88,7 @@ export default function ProfileScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <Header
           title="Profile"
-          subtitle="Manage your VidMuse account"
+          subtitle="Manage your account settings"
         />
 
         {/* Profile Card */}
@@ -36,22 +97,30 @@ export default function ProfileScreen() {
             <Ionicons name="person" size={40} color="#fff" />
           </View>
 
-          <Text style={styles.name}>VidMuse Creator</Text>
-          <Text style={styles.email}>creator@vidmuse.ai</Text>
+          {loading ? (
+            <ActivityIndicator color="#6d5dfc" style={{ marginTop: 10 }} />
+          ) : (
+            <>
+              <Text style={styles.name}>{userData.name}</Text>
+              <Text style={styles.email}>{userData.email}</Text>
+            </>
+          )}
         </View>
 
         {/* Stats */}
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
-            <Text style={styles.statValue}>12</Text>
+            <Text style={styles.statValue}>{stats.videos}</Text>
             <Text style={styles.statLabel}>Videos</Text>
           </View>
           <View style={styles.statBox}>
-            <Text style={styles.statValue}>48</Text>
+            <Text style={styles.statValue}>{stats.scenes}</Text>
             <Text style={styles.statLabel}>Scenes</Text>
           </View>
           <View style={styles.statBox}>
-            <Text style={styles.statValue}>9.2k</Text>
+            <Text style={styles.statValue}>
+              {stats.views >= 1000 ? `${(stats.views / 1000).toFixed(1)}k` : stats.views}
+            </Text>
             <Text style={styles.statLabel}>Views</Text>
           </View>
         </View>
@@ -60,9 +129,21 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
 
-          <ProfileItem icon="settings" label="Preferences" />
-          <ProfileItem icon="shield-checkmark" label="Privacy & Security" />
-          <ProfileItem icon="help-circle" label="Help & Support" />
+          <ProfileItem
+            icon="settings"
+            label="Preferences"
+            onPress={() => navigation.navigate('Preferences' as never)}
+          />
+          <ProfileItem
+            icon="shield-checkmark"
+            label="Privacy & Security"
+            onPress={() => navigation.navigate('PrivacySecurity' as never)}
+          />
+          <ProfileItem
+            icon="help-circle"
+            label="Help & Support"
+            onPress={() => navigation.navigate('HelpSupport' as never)}
+          />
         </View>
 
         {/* Logout */}
@@ -77,11 +158,13 @@ export default function ProfileScreen() {
 const ProfileItem = ({
   icon,
   label,
+  onPress,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
+  onPress: () => void;
 }) => (
-  <TouchableOpacity style={styles.item}>
+  <TouchableOpacity style={styles.item} onPress={onPress}>
     <View style={styles.itemLeft}>
       <Ionicons name={icon} size={20} color="#6d5dfc" />
       <Text style={styles.itemText}>{label}</Text>

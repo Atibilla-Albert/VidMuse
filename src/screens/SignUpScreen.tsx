@@ -8,9 +8,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import api from '../services/api';
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
@@ -19,6 +22,51 @@ const SignUpScreen = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [secure, setSecure] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const handleSignUp = async () => {
+    if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await api.auth.signUp(email.trim(), password);
+      if (response.success) {
+        Alert.alert('Success', 'Account created successfully!', [
+          {
+            text: 'OK',
+            onPress: () => {
+              // Navigate to main app
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'MainTabs' as never }],
+              });
+            },
+          },
+        ]);
+      }
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      Alert.alert(
+        'Sign Up Failed',
+        error.message || 'Could not create account. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     
@@ -88,8 +136,16 @@ const SignUpScreen = () => {
         </View>
 
         {/* Button */}
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Create Account</Text>
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleSignUp}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Create Account</Text>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate("Login" as never)}>
@@ -192,7 +248,10 @@ const styles = StyleSheet.create({
   loginLink: {
     color: '#6d5dfc',
     fontWeight: 'bold',
-  }
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
 });
 
 export default SignUpScreen;

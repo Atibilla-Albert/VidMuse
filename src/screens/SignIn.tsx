@@ -8,9 +8,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import api from '../services/api';
 
 const SignInScreen = () => {
   const navigation = useNavigation();
@@ -18,11 +21,33 @@ const SignInScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secure, setSecure] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const handleSignIn = () => {
-    // Implement sign in logic here
-    console.log('Attempting sign in with:', email, password);
-    // On success: navigation.navigate('Create' as never);
+  const handleSignIn = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Error', 'Please enter both email and password');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await api.auth.signIn(email.trim(), password);
+      if (response.success) {
+        // Navigate to main app (MainTabs)
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'MainTabs' as never }],
+        });
+      }
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      Alert.alert(
+        'Sign In Failed',
+        error.message || 'Invalid email or password. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -86,8 +111,16 @@ const SignInScreen = () => {
 
 
         {/* Button */}
-        <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-          <Text style={styles.buttonText}>Sign In</Text>
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleSignIn}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Sign In</Text>
+          )}
         </TouchableOpacity>
 
         {/* Navigation Link to Sign Up */}
@@ -193,9 +226,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   forgotPasswordLink: {
-      alignSelf: 'flex-end',
-      marginBottom: 30,
-  }
+    alignSelf: 'flex-end',
+    marginBottom: 30,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
 });
 
 export default SignInScreen;

@@ -14,6 +14,7 @@ import CustomStatusBar from '../components/StatusBar';
 import Header from '../components/Header';
 import SceneCard from '../components/SceneCard';
 import api, { GenerateScenesResponse } from '../services/api';
+import { Alert } from 'react-native';
 
 type RootTabParamList = {
   Create: undefined;
@@ -45,58 +46,26 @@ export default function ScenesScreen({ navigation, route }: Props) {
       setLoading(true);
       setOverallProgress(10);
 
-      const res = await api.post<GenerateScenesResponse>('/story/generate', {
-        projectId,
-        prompt,
-      });
+      const response = await api.story.generate(projectId, prompt);
+      const scenesData = response.data.scenes;
 
-      // Ensure we have valid data (demo mode fallback)
-      const scenesData = res?.data?.scenes || [
-        { id: '1', text: 'Demo Scene 1: Story introduction' },
-        { id: '2', text: 'Demo Scene 2: Plot development' },
-        { id: '3', text: 'Demo Scene 3: Climax and resolution' },
-      ];
-
-      const mapped: Scene[] = scenesData.map(
-        (scene: any, index: number) => ({
-          id: scene.id ?? String(index + 1),
-          title: `Scene ${index + 1}`,
-          description: scene.text,
-          status: 'ready' as const,
-          progress: 100,
-        })
-      );
+      const mapped: Scene[] = scenesData.map((scene: any, index: number) => ({
+        id: scene.id || String(index + 1),
+        title: scene.title || `Scene ${index + 1}`,
+        description: scene.text || scene.description || '',
+        status: 'ready' as const,
+        progress: 100,
+      }));
 
       setScenes(mapped);
       setOverallProgress(100);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error generating scenes:', err);
-      // Fallback to demo scenes on error
-      const demoScenes: Scene[] = [
-        {
-          id: '1',
-          title: 'Scene 1',
-          description: 'Demo Scene 1: Story introduction',
-          status: 'ready',
-          progress: 100,
-        },
-        {
-          id: '2',
-          title: 'Scene 2',
-          description: 'Demo Scene 2: Plot development',
-          status: 'ready',
-          progress: 100,
-        },
-        {
-          id: '3',
-          title: 'Scene 3',
-          description: 'Demo Scene 3: Climax and resolution',
-          status: 'ready',
-          progress: 100,
-        },
-      ];
-      setScenes(demoScenes);
-      setOverallProgress(100);
+      Alert.alert(
+        'Error',
+        err.message || 'Failed to generate scenes. Please try again.'
+      );
+      setOverallProgress(0);
     } finally {
       setLoading(false);
     }
@@ -115,29 +84,33 @@ export default function ScenesScreen({ navigation, route }: Props) {
       )
     );
 
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 20;
+    try {
+      const response = await api.story.regenerateScene(sceneId, prompt);
+      const scene = response.data.scene;
 
+      setScenes(prev =>
+        prev.map(s =>
+          s.id === sceneId
+            ? {
+                ...s,
+                status: 'ready',
+                progress: 100,
+                description: scene.text || scene.description || s.description,
+              }
+            : s
+        )
+      );
+    } catch (err: any) {
+      console.error('Error regenerating scene:', err);
+      Alert.alert('Error', err.message || 'Failed to regenerate scene');
       setScenes(prev =>
         prev.map(scene =>
           scene.id === sceneId
-            ? { ...scene, progress: Math.min(progress, 100) }
+            ? { ...scene, status: 'ready', progress: 100 }
             : scene
         )
       );
-
-      if (progress >= 100) {
-        clearInterval(interval);
-        setScenes(prev =>
-          prev.map(scene =>
-            scene.id === sceneId
-              ? { ...scene, status: 'ready', progress: 100 }
-              : scene
-          )
-        );
-      }
-    }, 300);
+    }
   };
 
   const previewScene = (scene: Scene) => {

@@ -41,19 +41,15 @@ export default function CreateScreen({ navigation }: Props) {
 
     setLoading(true);
     try {
-      const res = await api.post('/projects/create', {
-        prompt: storyText,
-        style: videoStyle,
-        duration: videoLength,
-      });
-
-      const projectId = res?.data?.projectId || `demo-${Date.now()}`;
-      // Use navigate with proper typing
+      const response = await api.projects.create(storyText, videoStyle, videoLength);
+      const projectId = response.data.projectId;
       navigation.navigate('Scenes', { projectId, prompt: storyText });
-    } catch (err) {
+    } catch (err: any) {
       console.error('API Error:', err);
-      // Fallback for development/demo mode
-      navigation.navigate('Scenes', { projectId: `demo-${Date.now()}`, prompt: storyText });
+      Alert.alert(
+        'Error',
+        err.message || 'Failed to create project. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
